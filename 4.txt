@@ -1,0 +1,42 @@
+4.l-------------------------------------------------------------------------------------
+%{
+#include"y.tab.h"
+%}
+%%
+[a-z]+ {printf("Next in input %s\n",yytext);return ID;}
+\n {return 0;}
+"+"|"*" {printf("Next in input %c\n",yytext[0]);return yytext[0];}
+%%
+
+
+
+4.y-------------------------------------------------------------------------------------
+%{
+#include<stdio.h>
+#include<stdlib.h>
+%}
+%name parse
+%token ID '+' '*'
+%start S
+%%
+S:E {printf("\t\t accept\n");}
+E:E'+'T {printf("\t\t Reduce using E->E+T\n");}
+|T {printf("\t\t Reduce using E->T\n");}
+;
+T:T'*'F {printf("\t\t Reduce using T->T*F\n");}
+|F {printf("\t\t Reduce using T->F\n");}
+;
+F:'('E')' {printf("\t\t Reduce using F->(E)\n");}
+|ID {printf("\t\t Reduce using F->id\n");}
+;
+%%
+main()
+{
+yyparse();
+}
+
+yyerror()
+{
+printf("invalid");
+exit(0);
+}

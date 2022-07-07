@@ -1,0 +1,103 @@
+//1a------------------------------------------------------------------------------
+%{
+#include<stdio.h>
+int pc=0,count=0,flag=0,idcount=0,opcount=0;
+%}
+%%
+"("  {pc++;}
+")"       {  pc--;
+            if(pc<0)  
+            flag=1;
+          }
+[a-zA-Z][a-zA-z0-9]*/"("               {printf("identifiers=%s\n",yytext);   flag=1;}
+")"/([a-zA-Z][a-zA-Z0-9_]*) {flag=1;}
+[a-zA-Z][a-zA-Z0-9_]*                   {printf("identifiers=%s\n",yytext);
+count++;
+idcount++;
+}
+[-+*/]                                  {printf("operators=%s\n",yytext);
+count--;
+if(count<0)   flag=1;
+opcount++;
+}
+%%
+
+int main()
+{
+printf("enter the arithmetic expression");
+yylex();
+if(count!=1)
+flag=1;
+if(pc!=0)
+flag=1;
+if(flag==0)
+{
+printf("valid expression\n");
+}
+else{
+printf("invalid expression");
+}
+printf("idcount=%d\n  opcount=%d",idcount,opcount);
+}
+
+
+//1b-----------------------------------------------------------------------------------
+//1b.l
+
+
+%{
+#include<stdio.h>
+#include"y.tab.h"
+int yylval;
+%}
+
+%%
+[)]   {return yytext[0];}
+[(]   {return yytext[0];}
+[0-9][0-9]*   {yylval=atoi(yytext);
+return ID;
+}
+[0-9][0-9]*/[!/@/#/$/%/^/&/=]*   return 0;
+[-+*/] return yytext[0];
+\n return 0;
+[!/@/#/$/%/^/&/=] return 0;
+.         return yytext[0];
+%%
+
+//1b.y
+
+
+%{
+#include<stdio.h>
+%}
+
+%token ID;
+%left'+''-'
+%left'*''/'
+
+%%
+S:E  {
+printf("Result=%d\n",$1);  
+exit(0);
+}
+;
+E:E'+'E  {$$=$1+$3;}
+| E'-'E  {$$=$1-$3;}
+| E'*'E  {$$=$1*$3;}
+| E'/'E  {$$=$1/$3;}
+| '('E')' {$$=$2;}
+| ID      {$$=$1;}
+;
+%%
+
+yyerror()
+{
+printf("Invalid expression");
+exit(0);
+}
+
+main()
+{
+printf("Enter the expression");
+yyparse();
+}

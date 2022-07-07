@@ -1,0 +1,41 @@
+#include<string.h>
+#include<stdio.h>
+#include<ctype.h>
+
+
+char result[4],arg1[4],arg2[4],op[5];
+void main()
+{
+FILE *fp;
+fp=fopen("input.txt","r");
+while(!feof(fp))
+{
+
+fscanf(fp,"%s%s%s%s",result,arg1,op,arg2);
+
+	     
+if(strcmp(op,"+")==0)
+{
+printf("LD R0, %s\n",arg1);
+printf("ADD R0, %s\n",arg2);
+printf("ST %s, R0\n",result);
+}
+if(strcmp(op,"*")==0)
+{
+printf("LD R0, %s\n",arg1);
+printf("MUL R0, %s\n",arg2);
+printf("ST %s, R0\n",result);
+}
+if(strcmp(op,"=")==0)
+{
+printf("LD R0, %s\n",arg1);
+printf("ST %s,R0\n",result);
+}
+
+}
+
+fclose(fp);
+
+}
+
+

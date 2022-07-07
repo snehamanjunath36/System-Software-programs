@@ -1,0 +1,39 @@
+//2.l
+
+%{
+#include "y.tab.h"
+%}
+%%
+[aA] {return TA;}
+[bB] {return TB;}
+[\n] {return 0;}
+. {return yytext [0];}
+%%
+
+
+//2.y
+
+
+%{
+#include<stdio.h>
+#include<stdlib.h>
+%}
+%token TA TB
+%%
+S:VarA TB
+;
+VarA:VarA TA
+|
+;
+%%
+  main()
+{
+printf("enter the string\n");
+yyparse();
+printf("valid\n");
+}
+yyerror()
+{
+printf("Invalid\n");
+exit(0);
+}

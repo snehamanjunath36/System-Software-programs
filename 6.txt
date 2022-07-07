@@ -1,0 +1,86 @@
+6a-------------------------------------------------------------------------------------------
+%{
+#include<stdio.h>
+int slc=0,mlc=0,tcl=0;
+int flag=0;
+%}
+%%
+"//".*[\n]     {slc++;tcl++;}
+"/*"     {tcl++;flag=1;}
+[\n]     {if(flag) {mlc++;flag=0;}}
+.       {if(!flag)  ECHO;}
+%%
+int main(int argc,char *argv[])
+{
+if(argc!=3)
+{
+printf("no files");
+exit(0);
+}
+yyin=fopen(argv[1],"r");
+yyout=fopen(argv[2],"w");
+yylex();
+printf("single line comment :%d \n",slc);
+printf("multi line comment :%d \n",mlc);
+printf("total comment :%d \n",tcl);
+}
+
+
+6b-------------------------------------------------------------------------------------------
+
+//6b.l
+
+
+%{
+#include<stdio.h>
+#include "y.tab.h"
+extern int yylval;
+%}
+%%
+"#".*"<".*">" {printf("header information\n");}
+[\t\n] ;
+["+"|"-"|"*"|"/"|"="|"<"|">"] {printf("operator is %s\n",yytext); return OP;}
+int|char|bool|float|void|for|do|while|if|else|return|void {printf("keyword is %s\n",yytext);return KW;}
+[a-z][a-zA-Z0-9]* {printf("identifier is %s\n",yytext);return ID;}
+"++"|"--" {printf("increment/decrement operator is %s\n",yytext);return OP;}
+[<>=][=]? {printf("relational operator is %s\n",yytext);return OP;}
+. ;
+%%
+
+
+//6b.y
+
+
+%{
+#include<stdio.h>
+#include<ctype.h>
+#include<stdlib.h>
+int id=0,kw=0,op=0;
+extern FILE *yyin;
+extern int yylex();
+extern int yyparse();
+%}
+
+%token ID KW OP
+%start S
+%%
+S:ID S {id++;}
+|KW S {kw++;}
+|OP S {op++;}
+|
+;
+%%
+int main()
+{
+yyin=fopen("input.c","r");
+do
+{
+yyparse();
+}
+while(!feof(yyin));
+printf("identifiers=%d\n keyword=%d\n operators=%d\n",id,kw,op);
+}
+yyerror(){
+printf("eek,parse error!message:");
+exit(0);
+}
